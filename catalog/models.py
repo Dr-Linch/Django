@@ -1,7 +1,6 @@
 from django.db import models
 
-
-# Create your models here.
+NULLABLE = {'null': True, 'blank': True}
 
 
 class Product(models.Model):
@@ -11,8 +10,8 @@ class Product(models.Model):
     preview = models.ImageField(upload_to='products/', null=True, blank=True)
     category_name = models.ForeignKey('Category', on_delete=models.CASCADE, blank=True, null=True)
     price = models.IntegerField(verbose_name='цена ')
-    created_date = models.DateField(verbose_name='дата создания')
-    modified_date = models.DateField(verbose_name='дата последнего изменения')
+    created_date = models.DateField(auto_now_add=True, verbose_name='дата создания')
+    modified_date = models.DateField(**NULLABLE, verbose_name='дата последнего изменения')
 
     def __str__(self):
         return f'{id}, {self.product_name}, {self.price}, {self.category_name}'
@@ -28,3 +27,17 @@ class Category(models.Model):
 
     def __str__(self):
         return f'{id}, {self.category_name}'
+
+
+class Version(models.Model):
+    product = models.ForeignKey('Product', on_delete=models.CASCADE, verbose_name='id_product')
+    number_version = models.IntegerField(verbose_name='номер_версии')
+    name = models.CharField(max_length=100, verbose_name='наименование')
+    current_version = models.BooleanField(verbose_name='признак_текущей_версии')
+
+    def __str__(self):
+        return f'{self.name}'
+
+    class Meta:
+        verbose_name = 'версия'
+        verbose_name_plural = 'версии'
