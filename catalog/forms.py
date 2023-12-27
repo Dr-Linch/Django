@@ -16,7 +16,7 @@ class ProductForm(StyleFormMixin, forms.ModelForm):
         exclude = ('created_date', 'modified_date')
 
     def clean_product_name(self):
-        cleaned_data = self.cleaned_data['product_name', 'description']
+        cleaned_data = self.cleaned_data['product_name']
         prohibited_list = ['казино', 'криптовалюта', 'крипта', 'биржа', 'дешево', 'бесплатно', 'обман', 'полиция',
                            'радар']
         for obj in prohibited_list:
