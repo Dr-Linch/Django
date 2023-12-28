@@ -9,8 +9,6 @@
                     <h4 class="my-0 font-weight-normal"><a class="btn btn-primary btn-lg" href="{% url 'catalog:product' object.pk %}">{{object.product_name|title}}</a></h4>
                     <div class="">
                         <h6 class="my-0 font-weight-normal">{{object.category_name.category_name}}</h6>
-                        <h6 class="my-0 font-weight-normal">Название версии: {{object.name}}</h6>
-                        <h6 class="my-0 font-weight-normal">Номер версии: {{object.number_version}}</h6>
                     </div>
                     </div>
                 <div class="card-body">
@@ -20,6 +18,10 @@
                     <a  class="btn btn-lg btn-block btn-outline-primary" href="{% url 'catalog:update' object.pk %}">
                         Изменить
                     </a>
+                </div>
+                <div class="card-footer">
+                    <h6 class="my-0 font-weight-normal">Название версии: {{object.active_title}}</h6>
+                    <h6 class="my-0 font-weight-normal">Номер версии: {{object.active_version_number}}</h6>
                 </div>
             </div>
         </div>
