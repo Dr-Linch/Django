@@ -7,10 +7,25 @@ from django.shortcuts import get_object_or_404
 from django.views.generic import ListView, DetailView, CreateView, UpdateView
 from django.urls import reverse_lazy
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin, UserPassesTestMixin
+from django.core.cache import cache
+from catalog.services import get_cache_category
 
 
 def contacts(request):
     return render(request, 'catalog/contact.html')
+
+
+class CategoryListView(LoginRequiredMixin, ListView):
+    model = Category
+    template_name = 'catalog/category_list.html'
+    extra_context = {
+        'title': 'SkyStore - Магазин и Блог, Блогазин, Магалог'
+    }
+
+    def get_context_data(self, *, object_list=None, **kwargs):
+        context_data = super().get_context_data(**kwargs)
+        context_data['category_list'] = get_cache_category()
+        return context_data
 
 
 class ProductListView(LoginRequiredMixin, ListView):
