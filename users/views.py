@@ -6,6 +6,7 @@ from django.urls import reverse_lazy, reverse
 from django.core.mail import send_mail
 from config.settings import EMAIL_HOST_USER
 from django.contrib import messages
+from django.contrib.auth.mixins import LoginRequiredMixin
 import random
 
 
@@ -37,7 +38,7 @@ def verify_mail(request, code):
     return redirect(reverse('users:login'))
 
 
-class ProfileView(UpdateView):
+class ProfileView(LoginRequiredMixin, UpdateView):
     model = User
     form_class = UserProfileForm
     template_name = 'users/profile.html'

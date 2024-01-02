@@ -6,14 +6,14 @@ from catalog.models import Product, Category, Version
 from django.shortcuts import get_object_or_404
 from django.views.generic import ListView, DetailView, CreateView, UpdateView
 from django.urls import reverse_lazy
-from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
+from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin, UserPassesTestMixin
 
 
 def contacts(request):
     return render(request, 'catalog/contact.html')
 
 
-class ProductListView(ListView):
+class ProductListView(LoginRequiredMixin, ListView):
     model = Product
     template_name = 'catalog/index.html'
 
@@ -35,7 +35,7 @@ class ProductListView(ListView):
         return context
 
 
-class ProductDetailView(DetailView):
+class ProductDetailView(LoginRequiredMixin, DetailView):
     model = Product
     template_name = 'catalog/product.html'
 
@@ -57,7 +57,7 @@ class ProductDetailView(DetailView):
 class ProductCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
     model = Product
     form_class = ProductForm
-    permission_required = 'users.login'
+    permission_required = 'catalog.add_product'
     success_url = reverse_lazy('catalog:index')
 
     def get_context_data(self, **kwargs):
@@ -81,10 +81,9 @@ class ProductCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView)
         return super().form_valid(form)
 
 
-class ProductUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
+class ProductUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     model = Product
     form_class = ProductForm
-    permission_required = 'users.login'
     success_url = reverse_lazy('catalog:index')
 
     def get_context_data(self, **kwargs):
@@ -107,3 +106,26 @@ class ProductUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateView)
                 formset.instance = self.object
                 formset.save()
             return super().form_valid(form)
+
+    def test_func(self):
+        _user = self.request.user
+        _instance: Product = self.get_object()
+        custom_perms: tuple = (
+            'catalog.set_is_published',
+            'catalog.set_category',
+            'catalog.set_description',
+        )
+        print(_user.groups.all())
+        print(_user.is_superuser)
+        if _user == _instance.owner:
+            print('owner')
+            return True
+        elif _user.is_superuser:
+            print('superuser')
+            return True
+        elif _user.groups.filter(name='moderators') and _user.has_perms(custom_perms):
+            print('moderator')
+            return True
+        else:
+            print('no permissions')
+            return self.handle_no_permission()
